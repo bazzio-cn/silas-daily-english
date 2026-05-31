@@ -1,4 +1,5 @@
 import argparse
+import os
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -24,7 +25,7 @@ def main() -> None:
     parser.add_argument("--local-root", default="build/site")
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[2]
+    root = Path(os.environ.get("SILAS_DAILY_ENGLISH_ROOT", Path.cwd())).resolve()
     data_dir = root / "data"
     config = AppConfig.load(data_dir / "config.json")
     publisher = LocalPublisher(Path(args.local_root)) if args.publisher == "local" else COSPublisher()
