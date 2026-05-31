@@ -1,0 +1,66 @@
+name: Publish daily episode
+
+on:
+  schedule:
+    # 23:17 UTC is 06:17 the following day in Thailand.
+    - cron: "17 23 * * *"
+  workflow_dispatch:
+    inputs:
+      publication_date:
+        description: "Episode date in YYYY-MM-DD format; leave empty for runner date"
+        required: false
+        type: string
+      lesson:
+        description: "Optional lesson override"
+        required: false
+        type: string
+
+concurrency:
+  group: silas-daily-english-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install publisher
+        run: pip install .
+
+      - name: Publish episode
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+          AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+          TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
+          TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          COS_BUCKET: ${{ vars.COS_BUCKET }}
+          COS_REGION: ${{ vars.COS_REGION }}
+          COS_PREFIX: ${{ vars.COS_PREFIX }}
+          PUBLICATION_DATE: ${{ inputs.publication_date }}
+          LESSON: ${{ inputs.lesson }}
+        run: |
+          args=()
+          if [ -n "$PUBLICATION_DATE" ]; then args+=(--date "$PUBLICATION_DATE"); fi
+          if [ -n "$LESSON" ]; then args+=(--lesson "$LESSON"); fi
+          silas-daily-english publish \
+            --publisher cos \
+            --story-provider openai \
+            --tts-provider azure \
+            "${args[@]}"
+
+      - name: Upload generated files for debugging
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-podcast-build
+          path: build/latest/
+          if-no-files-found: ignore
+          retention-days: 7

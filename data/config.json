@@ -1,0 +1,13 @@
+{
+  "podcast_title": "Silas' Daily English",
+  "podcast_description": "Short daily English stories for Aron.",
+  "podcast_author": "Silas",
+  "public_base_url": "https://silas-podcast-1252641701.cos.ap-guangzhou.myqcloud.com/aron-8f3a91",
+  "cos_prefix": "aron-8f3a91",
+  "feed_item_limit": 60,
+  "story_min_words": 220,
+  "story_max_words": 290,
+  "min_daily_focus_words": 2,
+  "max_generation_attempts": 3,
+  "tts_voice": "en-GB-RyanNeural"
+}

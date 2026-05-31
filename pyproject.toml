@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "silas-daily-english"
+version = "0.1.0"
+description = "Daily private English podcast publisher for Silas and Aron"
+requires-python = ">=3.9"
+dependencies = [
+  "azure-cognitiveservices-speech>=1.43.0,<2",
+  "cos-python-sdk-v5>=1.9.38,<2",
+  "openai>=1.68.0,<3",
+]
+
+[project.scripts]
+silas-daily-english = "silas_daily_english.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

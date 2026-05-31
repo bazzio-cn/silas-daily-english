@@ -1,0 +1,2 @@
+# Common primary-school English is allowed by default. This file is optional:
+# add words here only when you want them excluded from the review list.
