@@ -41,7 +41,36 @@ class PipelineTest(unittest.TestCase):
             self.assertIn("successful", transcript)
             self.assertIn("following", transcript)
 
-    def test_duplicate_date_is_rejected(self):
+    def test_duplicate_date_is_regenerated_without_advancing_lesson(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            pipeline = DailyPipeline(
+                config=AppConfig.load(root / "data" / "config.json"),
+                data_dir=root / "data",
+                build_dir=temp / "build",
+                publisher=LocalPublisher(temp / "site"),
+                story_generator=MockStoryGenerator(),
+                tts=MockTTS(),
+            )
+            first = pipeline.publish("2026-06-01")
+            second = pipeline.publish("2026-06-01")
+            self.assertEqual(first.lesson, 39)
+            self.assertEqual(second.lesson, 39)
+            state = json.loads((temp / "site" / "state.json").read_text())
+            self.assertEqual(state["current_lesson"], 39)
+            self.assertEqual(
+                len(
+                    [
+                        item
+                        for item in state["episodes"]
+                        if item["date"] == "2026-06-01"
+                    ]
+                ),
+                1,
+            )
+
+    def test_duplicate_date_rejects_different_lesson_override(self):
         root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
@@ -54,8 +83,8 @@ class PipelineTest(unittest.TestCase):
                 tts=MockTTS(),
             )
             pipeline.publish("2026-06-01")
-            with self.assertRaisesRegex(RuntimeError, "already exists"):
-                pipeline.publish("2026-06-01")
+            with self.assertRaisesRegex(RuntimeError, "refusing lesson 40 overwrite"):
+                pipeline.publish("2026-06-01", lesson=40)
 
     def test_missing_next_lesson_stops_publish(self):
         root = Path(__file__).resolve().parents[1]

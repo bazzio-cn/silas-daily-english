@@ -34,10 +34,21 @@ class DailyPipeline:
     def publish(self, publication_date: str, lesson: Optional[int] = None) -> Episode:
         self.build_dir.mkdir(parents=True, exist_ok=True)
         state = self._load_state()
-        if any(item.date == publication_date for item in state.episodes):
-            raise RuntimeError("Episode already exists for {}".format(publication_date))
-        target_lesson = lesson or state.current_lesson + 1
+        existing = next(
+            (item for item in state.episodes if item.date == publication_date),
+            None,
+        )
+        if existing and lesson is not None and lesson != existing.lesson:
+            raise RuntimeError(
+                "Episode {} already uses lesson {}; refusing lesson {} overwrite."
+                .format(publication_date, existing.lesson, lesson)
+            )
+        target_lesson = existing.lesson if existing else lesson or state.current_lesson + 1
         self.vocabulary.ensure_available(target_lesson)
+        if existing:
+            state.episodes = [
+                item for item in state.episodes if item.date != publication_date
+            ]
         theme = self.theme_selector(
             self.config.story_themes,
             [episode.story_theme for episode in state.episodes[:14]],
@@ -65,7 +76,7 @@ class DailyPipeline:
             tts_voice=self.tts.voice,
             story_theme=theme["key"],
         )
-        state.current_lesson = target_lesson
+        state.current_lesson = max(state.current_lesson, target_lesson)
         state.last_published_date = publication_date
         state.episodes.insert(0, episode)
         state.episodes = state.episodes[: self.config.feed_item_limit]

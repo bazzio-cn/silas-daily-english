@@ -89,6 +89,11 @@ state.json
 
 The RSS feed is updated only after the episode files are available.
 
+Re-running the workflow for an existing date regenerates that day's story,
+audio, and transcripts from scratch, then replaces the RSS item. It keeps the
+original lesson number so the learning progress is not advanced twice. A
+different explicit lesson override for an existing date is rejected.
+
 ## Private Apple Podcasts Limitation
 
 Apple Podcasts does not display its native transcript interface for a private RSS
