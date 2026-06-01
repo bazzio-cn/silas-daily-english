@@ -1,5 +1,6 @@
 import argparse
 import os
+import random
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -34,7 +35,8 @@ def main() -> None:
         if args.story_provider == "mock"
         else OpenAIStoryGenerator()
     )
-    tts = MockTTS() if args.tts_provider == "mock" else AzureTTS(config.tts_voice)
+    selected_voice = random.SystemRandom().choice(config.tts_voices)
+    tts = MockTTS() if args.tts_provider == "mock" else AzureTTS(selected_voice)
     pipeline = DailyPipeline(
         config=config,
         data_dir=data_dir,

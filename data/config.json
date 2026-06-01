@@ -9,5 +9,14 @@
   "story_max_words": 290,
   "min_daily_focus_words": 2,
   "max_generation_attempts": 3,
-  "tts_voice": "en-GB-RyanNeural"
+  "tts_voices": [
+    "en-GB-RyanNeural",
+    "en-GB-ThomasNeural",
+    "en-GB-SoniaNeural",
+    "en-GB-LibbyNeural",
+    "en-US-GuyNeural",
+    "en-US-TonyNeural",
+    "en-US-JennyNeural",
+    "en-US-AriaNeural"
+  ]
 }

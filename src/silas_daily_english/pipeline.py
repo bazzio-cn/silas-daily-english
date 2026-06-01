@@ -55,6 +55,7 @@ class DailyPipeline:
             duration_seconds=duration_seconds,
             audio_bytes=audio_path.stat().st_size,
             guid="silas-daily-english-{}".format(publication_date),
+            tts_voice=self.tts.voice,
         )
         state.current_lesson = target_lesson
         state.last_published_date = publication_date

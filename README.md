@@ -2,9 +2,13 @@
 
 Automated private podcast publishing for Aron's daily English listening practice.
 
-Each run creates one original short story, a British-English MP3, a timed SRT
+Each run creates one original short story, an English MP3, a timed SRT
 transcript, a plain-text transcript, and an updated RSS feed. Episode assets stay
 separate from `feed.xml`.
+
+Each episode randomly selects one of eight clear neural voices: four British
+English voices and four American English voices, with two male and two female
+voices in each accent. The selected voice is recorded in `state.json`.
 
 ## Current Status
 

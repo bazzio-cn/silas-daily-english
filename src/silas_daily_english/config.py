@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class AppConfig:
     story_max_words: int
     min_daily_focus_words: int
     max_generation_attempts: int
-    tts_voice: str
+    tts_voices: List[str]
 
     @classmethod
     def load(cls, path: Path) -> "AppConfig":

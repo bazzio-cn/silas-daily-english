@@ -6,6 +6,8 @@ from .subtitles import Boundary, estimated_boundaries, format_srt
 
 
 class MockTTS:
+    voice = "mock-voice"
+
     def synthesize(self, narration: str, audio_path: Path, subtitle_path: Path) -> int:
         duration = max(90, round(len(narration.split()) / 2.4))
         audio_path.write_bytes(b"MOCK MP3 FOR DRY RUN\n")
@@ -21,6 +23,7 @@ class AzureTTS:
         import azure.cognitiveservices.speech as speechsdk
 
         self.speechsdk = speechsdk
+        self.voice = voice
         speech_config = speechsdk.SpeechConfig(
             subscription=require_env("AZURE_SPEECH_KEY"),
             region=require_env("AZURE_SPEECH_REGION"),

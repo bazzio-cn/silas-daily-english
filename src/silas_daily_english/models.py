@@ -11,6 +11,7 @@ class Episode:
     duration_seconds: int
     audio_bytes: int
     guid: str
+    tts_voice: str = ""
 
     @classmethod
     def from_dict(cls, value: Dict[str, Any]) -> "Episode":

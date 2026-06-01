@@ -30,6 +30,7 @@ class PipelineTest(unittest.TestCase):
             self.assertTrue((temp / "site" / "episodes" / "2026-06-01.txt").exists())
             state = json.loads((temp / "site" / "state.json").read_text())
             self.assertEqual(state["current_lesson"], 39)
+            self.assertEqual(state["episodes"][0]["tts_voice"], "mock-voice")
             feed = (temp / "site" / "feed.xml").read_text()
             self.assertIn("episodes/2026-06-01.mp3", feed)
             self.assertIn("episodes/2026-06-01.srt", feed)
