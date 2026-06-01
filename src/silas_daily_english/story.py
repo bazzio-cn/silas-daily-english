@@ -40,6 +40,8 @@ class MockStoryGenerator:
         learned_words: Iterable[str],
         story_theme: dict,
         recurring_characters: Iterable[dict],
+        min_words: int,
+        max_words: int,
         attempt: int,
     ) -> Story:
         return MOCK_STORY
@@ -59,6 +61,8 @@ class OpenAIStoryGenerator:
         learned_words: Iterable[str],
         story_theme: dict,
         recurring_characters: Iterable[dict],
+        min_words: int,
+        max_words: int,
         attempt: int,
     ) -> Story:
         prompt = _build_prompt(
@@ -67,6 +71,8 @@ class OpenAIStoryGenerator:
             list(learned_words),
             story_theme,
             list(recurring_characters),
+            min_words,
+            max_words,
             attempt,
         )
         response = self.client.responses.create(
@@ -99,11 +105,13 @@ def _build_prompt(
     learned_words: List[str],
     story_theme: dict,
     recurring_characters: List[dict],
+    min_words: int,
+    max_words: int,
     attempt: int,
 ) -> str:
     return """Write one original English listening story for an 11-year-old Year 6
 student who is learning English. The student has memorised New Concept English 2
-through lesson {lesson}. Write 220-290 words in British English. Keep the story
+through lesson {lesson}. Write {min_words}-{max_words} words in clear English. Keep the story
 clear, warm, and interesting without sounding childish. Ordinary primary-school
 English vocabulary is allowed by default. The textbook list is not a strict
 whitelist. Naturally use at least two of today's focus words:
@@ -134,5 +142,7 @@ Generation attempt: {attempt}.
             "{}: {}".format(character["name"], character["description"])
             for character in recurring_characters
         ),
+        min_words=min_words,
+        max_words=max_words,
         attempt=attempt,
     )

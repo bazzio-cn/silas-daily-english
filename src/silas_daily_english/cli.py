@@ -36,7 +36,11 @@ def main() -> None:
         else OpenAIStoryGenerator()
     )
     selected_voice = random.SystemRandom().choice(config.tts_voices)
-    tts = MockTTS() if args.tts_provider == "mock" else AzureTTS(selected_voice)
+    tts = (
+        MockTTS()
+        if args.tts_provider == "mock"
+        else AzureTTS(selected_voice, config.tts_rate_percent)
+    )
     pipeline = DailyPipeline(
         config=config,
         data_dir=data_dir,

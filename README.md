@@ -16,6 +16,9 @@ comedy, family life, a small adventure, science curiosity, or travel discovery.
 The publisher avoids recently used themes when possible and records the selected
 theme in `state.json`.
 
+Stories target 200-260 words. Azure Speech reads each episode at a 10% slower
+rate to keep the daily listening task comfortable.
+
 ## Current Status
 
 The publishing pipeline, local dry-run provider, Azure Speech provider, OpenAI

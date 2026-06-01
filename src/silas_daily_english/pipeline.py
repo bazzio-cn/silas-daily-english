@@ -103,6 +103,8 @@ class DailyPipeline:
                 learned_words,
                 theme,
                 self.config.recurring_characters,
+                self.config.story_min_words,
+                self.config.story_max_words,
                 attempt,
             )
             validation = validate_story(

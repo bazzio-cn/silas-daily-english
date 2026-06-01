@@ -5,10 +5,11 @@
   "public_base_url": "https://silas-podcast-1252641701.cos.ap-guangzhou.myqcloud.com/aron-8f3a91",
   "cos_prefix": "aron-8f3a91",
   "feed_item_limit": 60,
-  "story_min_words": 220,
-  "story_max_words": 290,
+  "story_min_words": 200,
+  "story_max_words": 260,
   "min_daily_focus_words": 2,
   "max_generation_attempts": 3,
+  "tts_rate_percent": -10,
   "tts_voices": [
     "en-GB-RyanNeural",
     "en-GB-ThomasNeural",

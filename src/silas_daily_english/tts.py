@@ -1,3 +1,4 @@
+from html import escape
 from pathlib import Path
 from typing import List, Tuple
 
@@ -19,11 +20,12 @@ class MockTTS:
 
 
 class AzureTTS:
-    def __init__(self, voice: str):
+    def __init__(self, voice: str, rate_percent: int = -10):
         import azure.cognitiveservices.speech as speechsdk
 
         self.speechsdk = speechsdk
         self.voice = voice
+        self.rate_percent = rate_percent
         speech_config = speechsdk.SpeechConfig(
             subscription=require_env("AZURE_SPEECH_KEY"),
             region=require_env("AZURE_SPEECH_REGION"),
@@ -56,7 +58,7 @@ class AzureTTS:
             )
 
         synthesizer.synthesis_word_boundary.connect(on_boundary)
-        result = synthesizer.speak_text_async(narration).get()
+        result = synthesizer.speak_ssml_async(self._ssml(narration)).get()
         if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
             details = speechsdk.SpeechSynthesisCancellationDetails.from_result(result)
             raise RuntimeError("Azure speech synthesis failed: {}".format(details.error_details))
@@ -66,3 +68,10 @@ class AzureTTS:
             boundaries = estimated_boundaries(narration, duration_seconds)
         subtitle_path.write_text(format_srt(boundaries), encoding="utf-8")
         return duration_seconds
+
+    def _ssml(self, narration: str) -> str:
+        return (
+            "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" "
+            "xml:lang=\"en-US\"><voice name=\"{}\"><prosody rate=\"{}%\">{}</prosody>"
+            "</voice></speak>"
+        ).format(self.voice, self.rate_percent, escape(narration))

@@ -26,6 +26,13 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(len(config.story_themes), 5)
         self.assertEqual(sum(theme["weight"] for theme in config.story_themes), 100)
 
+    def test_story_is_shorter_and_tts_is_ten_percent_slower(self):
+        root = Path(__file__).resolve().parents[1]
+        config = AppConfig.load(root / "data" / "config.json")
+        self.assertEqual(config.story_min_words, 200)
+        self.assertEqual(config.story_max_words, 260)
+        self.assertEqual(config.tts_rate_percent, -10)
+
 
 if __name__ == "__main__":
     unittest.main()

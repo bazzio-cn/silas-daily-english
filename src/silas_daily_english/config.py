@@ -17,6 +17,7 @@ class AppConfig:
     story_max_words: int
     min_daily_focus_words: int
     max_generation_attempts: int
+    tts_rate_percent: int
     tts_voices: List[str]
     recurring_characters: List[Dict[str, Any]]
     story_themes: List[Dict[str, Any]]
