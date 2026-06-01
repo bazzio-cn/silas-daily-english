@@ -6,6 +6,7 @@ from typing import Optional
 from .config import AppConfig, load_json
 from .models import Episode, State
 from .rss import write_feed
+from .themes import select_theme
 from .validate import validate_story
 from .vocabulary import VocabularyCatalog
 
@@ -19,6 +20,7 @@ class DailyPipeline:
         publisher,
         story_generator,
         tts,
+        theme_selector=select_theme,
     ):
         self.config = config
         self.data_dir = data_dir
@@ -26,6 +28,7 @@ class DailyPipeline:
         self.publisher = publisher
         self.story_generator = story_generator
         self.tts = tts
+        self.theme_selector = theme_selector
         self.vocabulary = VocabularyCatalog(data_dir)
 
     def publish(self, publication_date: str, lesson: Optional[int] = None) -> Episode:
@@ -35,7 +38,11 @@ class DailyPipeline:
             raise RuntimeError("Episode already exists for {}".format(publication_date))
         target_lesson = lesson or state.current_lesson + 1
         self.vocabulary.ensure_available(target_lesson)
-        story = self._generate_story(target_lesson)
+        theme = self.theme_selector(
+            self.config.story_themes,
+            [episode.story_theme for episode in state.episodes[:14]],
+        )
+        story = self._generate_story(target_lesson, theme)
 
         stem = publication_date
         audio_path = self.build_dir / "{}.mp3".format(stem)
@@ -56,6 +63,7 @@ class DailyPipeline:
             audio_bytes=audio_path.stat().st_size,
             guid="silas-daily-english-{}".format(publication_date),
             tts_voice=self.tts.voice,
+            story_theme=theme["key"],
         )
         state.current_lesson = target_lesson
         state.last_published_date = publication_date
@@ -84,7 +92,7 @@ class DailyPipeline:
             payload = load_json(self.data_dir / "state.default.json")
         return State.from_dict(payload)
 
-    def _generate_story(self, lesson: int):
+    def _generate_story(self, lesson: int, theme: dict):
         daily_focus_words = self.vocabulary.lesson_words(lesson)
         learned_words = self.vocabulary.learned_words(lesson)
         last_errors = []
@@ -93,6 +101,8 @@ class DailyPipeline:
                 lesson,
                 daily_focus_words,
                 learned_words,
+                theme,
+                self.config.recurring_characters,
                 attempt,
             )
             validation = validate_story(

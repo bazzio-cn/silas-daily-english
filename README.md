@@ -10,6 +10,12 @@ Each episode randomly selects one of eight clear neural voices: four British
 English voices and four American English voices, with two male and two female
 voices in each accent. The selected voice is recorded in `state.json`.
 
+Stories use an original light school-life series with recurring characters:
+Leo, Mia, Ben, and Ms Green. Each run chooses a weighted theme such as school
+comedy, family life, a small adventure, science curiosity, or travel discovery.
+The publisher avoids recently used themes when possible and records the selected
+theme in `state.json`.
+
 ## Current Status
 
 The publishing pipeline, local dry-run provider, Azure Speech provider, OpenAI

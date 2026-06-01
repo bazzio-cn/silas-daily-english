@@ -38,6 +38,8 @@ class MockStoryGenerator:
         lesson: int,
         daily_focus_words: Iterable[str],
         learned_words: Iterable[str],
+        story_theme: dict,
+        recurring_characters: Iterable[dict],
         attempt: int,
     ) -> Story:
         return MOCK_STORY
@@ -55,12 +57,16 @@ class OpenAIStoryGenerator:
         lesson: int,
         daily_focus_words: Iterable[str],
         learned_words: Iterable[str],
+        story_theme: dict,
+        recurring_characters: Iterable[dict],
         attempt: int,
     ) -> Story:
         prompt = _build_prompt(
             lesson,
             list(daily_focus_words),
             list(learned_words),
+            story_theme,
+            list(recurring_characters),
             attempt,
         )
         response = self.client.responses.create(
@@ -91,6 +97,8 @@ def _build_prompt(
     lesson: int,
     daily_focus_words: List[str],
     learned_words: List[str],
+    story_theme: dict,
+    recurring_characters: List[dict],
     attempt: int,
 ) -> str:
     return """Write one original English listening story for an 11-year-old Year 6
@@ -104,6 +112,16 @@ whitelist. Naturally use at least two of today's focus words:
 Previously introduced textbook words may also be used when they fit naturally:
 {learned_words}
 
+Use this story theme:
+{story_theme}
+
+Prefer using one or two of these recurring original characters when suitable:
+{recurring_characters}
+
+Keep the tone light and lively, with an amusing everyday problem and a warm
+ending. Build an original school-life series. Do not use characters, plots,
+phrasing, or distinctive details from published children's books.
+
 Do not copy, closely paraphrase, or continue any textbook passage. Do not mention
 the textbook or the learning task. Return only the requested JSON object.
 Generation attempt: {attempt}.
@@ -111,5 +129,10 @@ Generation attempt: {attempt}.
         lesson=lesson,
         daily_focus_words=", ".join(daily_focus_words) or "(no new words listed)",
         learned_words=", ".join(learned_words) or "(no prior words listed)",
+        story_theme=story_theme["guidance"],
+        recurring_characters="; ".join(
+            "{}: {}".format(character["name"], character["description"])
+            for character in recurring_characters
+        ),
         attempt=attempt,
     )

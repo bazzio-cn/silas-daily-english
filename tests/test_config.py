@@ -19,6 +19,13 @@ class ConfigTest(unittest.TestCase):
         )
         self.assertEqual(len(set(config.tts_voices)), 8)
 
+    def test_story_config_has_recurring_characters_and_weighted_themes(self):
+        root = Path(__file__).resolve().parents[1]
+        config = AppConfig.load(root / "data" / "config.json")
+        self.assertEqual(len(config.recurring_characters), 4)
+        self.assertEqual(len(config.story_themes), 5)
+        self.assertEqual(sum(theme["weight"] for theme in config.story_themes), 100)
+
 
 if __name__ == "__main__":
     unittest.main()

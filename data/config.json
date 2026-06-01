@@ -18,5 +18,50 @@
     "en-US-TonyNeural",
     "en-US-JennyNeural",
     "en-US-AriaNeural"
+  ],
+  "recurring_characters": [
+    {
+      "name": "Leo",
+      "description": "curious, cheerful, and sometimes a little careless"
+    },
+    {
+      "name": "Mia",
+      "description": "quick-thinking, practical, and kind"
+    },
+    {
+      "name": "Ben",
+      "description": "fond of small inventions and unexpected ideas"
+    },
+    {
+      "name": "Ms Green",
+      "description": "a warm teacher with a dry sense of humour"
+    }
+  ],
+  "story_themes": [
+    {
+      "key": "school_comedy",
+      "weight": 40,
+      "guidance": "A light school comedy about a small misunderstanding, a classroom surprise, homework, class duty, or a friendly competition."
+    },
+    {
+      "key": "family_life",
+      "weight": 20,
+      "guidance": "A warm and funny family moment involving plans, chores, a meal, a visitor, or a harmless mistake."
+    },
+    {
+      "key": "small_adventure",
+      "weight": 20,
+      "guidance": "A safe small adventure in an everyday setting, with curiosity, a minor problem, and a satisfying ending."
+    },
+    {
+      "key": "science_curiosity",
+      "weight": 10,
+      "guidance": "A playful science or invention story grounded in ordinary school life."
+    },
+    {
+      "key": "travel_discovery",
+      "weight": 10,
+      "guidance": "A short travel or local discovery story with an amusing but believable event."
+    }
   ]
 }

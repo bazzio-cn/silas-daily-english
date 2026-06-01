@@ -18,6 +18,8 @@ class AppConfig:
     min_daily_focus_words: int
     max_generation_attempts: int
     tts_voices: List[str]
+    recurring_characters: List[Dict[str, Any]]
+    story_themes: List[Dict[str, Any]]
 
     @classmethod
     def load(cls, path: Path) -> "AppConfig":
