@@ -2,8 +2,8 @@ name: Publish daily episode
 
 on:
   schedule:
-    # 23:17 UTC is 06:17 the following day in Thailand.
-    - cron: "17 23 * * *"
+    # 18:17 UTC is 01:17 the following day in Thailand.
+    - cron: "17 18 * * *"
   workflow_dispatch:
     inputs:
       publication_date:
