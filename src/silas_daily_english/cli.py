@@ -6,7 +6,9 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import AppConfig
+from .emailer import NullEmailSender, SMTPEmailSender
 from .pipeline import DailyPipeline
+from .questions import MockQuestionGenerator, OpenAIQuestionGenerator
 from .storage import COSPublisher, LocalPublisher
 from .story import MockStoryGenerator, OpenAIStoryGenerator
 from .tts import AzureTTS, MockTTS
@@ -23,6 +25,12 @@ def main() -> None:
     parser.add_argument("--publisher", choices=["local", "cos"], default="local")
     parser.add_argument("--story-provider", choices=["mock", "openai"], default="mock")
     parser.add_argument("--tts-provider", choices=["mock", "azure"], default="mock")
+    parser.add_argument(
+        "--question-provider",
+        choices=["none", "mock", "openai"],
+        default="none",
+    )
+    parser.add_argument("--question-email", choices=["none", "smtp"], default="none")
     parser.add_argument("--local-root", default="build/site")
     args = parser.parse_args()
 
@@ -41,6 +49,16 @@ def main() -> None:
         if args.tts_provider == "mock"
         else AzureTTS(selected_voice, config.tts_rate_percent)
     )
+    question_generator = None
+    if args.question_provider == "mock":
+        question_generator = MockQuestionGenerator()
+    elif args.question_provider == "openai":
+        question_generator = OpenAIQuestionGenerator()
+    email_sender = None
+    if args.question_email == "none":
+        email_sender = NullEmailSender()
+    elif args.question_email == "smtp":
+        email_sender = SMTPEmailSender.from_env()
     pipeline = DailyPipeline(
         config=config,
         data_dir=data_dir,
@@ -48,6 +66,8 @@ def main() -> None:
         publisher=publisher,
         story_generator=story_generator,
         tts=tts,
+        question_generator=question_generator,
+        email_sender=email_sender,
     )
     episode = pipeline.publish(args.date, lesson=args.lesson)
     print(

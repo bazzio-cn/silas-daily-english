@@ -6,6 +6,10 @@ Each run creates one original short story, an English MP3, a timed SRT
 transcript, a plain-text transcript, and an updated RSS feed. Episode assets stay
 separate from `feed.xml`.
 
+Each production run also generates three short parent-facing questions about the
+day's story and emails them after the episode files, RSS feed, and state file
+have been published. These questions are not included in the podcast feed.
+
 Each episode randomly selects one of eight clear neural voices: four British
 English voices and four American English voices, with two male and two female
 voices in each accent. The selected voice is recorded in `state.json`.
@@ -52,6 +56,20 @@ silas-daily-english publish \
 
 Generated files appear in `build/site/`.
 
+To preview the parent questions locally without sending email:
+
+```bash
+silas-daily-english publish \
+  --date 2026-06-01 \
+  --publisher local \
+  --story-provider mock \
+  --tts-provider mock \
+  --question-provider mock \
+  --question-email none
+```
+
+The questions file appears in `build/latest/YYYY-MM-DD-questions.txt`.
+
 ## Production Secrets
 
 Add these GitHub Actions repository secrets:
@@ -62,6 +80,12 @@ AZURE_SPEECH_KEY
 AZURE_SPEECH_REGION
 TENCENT_SECRET_ID
 TENCENT_SECRET_KEY
+SMTP_HOST
+SMTP_PORT
+SMTP_USERNAME
+SMTP_PASSWORD
+QUESTIONS_EMAIL_FROM
+QUESTIONS_EMAIL_TO
 ```
 
 Add these repository variables:
@@ -70,10 +94,14 @@ Add these repository variables:
 COS_BUCKET=silas-podcast-1252641701
 COS_REGION=ap-guangzhou
 COS_PREFIX=aron-8f3a91
+SMTP_USE_SSL=true
 ```
 
 Use a Tencent Cloud CAM sub-account restricted to this COS bucket. Do not store
 the Tencent Cloud primary account key in GitHub.
+
+`SMTP_USE_SSL` is optional and defaults to true when omitted. Set it to `false`
+only for SMTP providers that require STARTTLS instead of implicit SSL.
 
 ## Publication Order
 

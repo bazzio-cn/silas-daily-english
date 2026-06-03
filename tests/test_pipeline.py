@@ -5,9 +5,18 @@ from pathlib import Path
 
 from silas_daily_english.config import AppConfig
 from silas_daily_english.pipeline import DailyPipeline
+from silas_daily_english.questions import MockQuestionGenerator
 from silas_daily_english.storage import LocalPublisher
 from silas_daily_english.story import MockStoryGenerator
 from silas_daily_english.tts import MockTTS
+
+
+class RecordingEmailSender:
+    def __init__(self):
+        self.messages = []
+
+    def send(self, subject, body):
+        self.messages.append((subject, body))
 
 
 class PipelineTest(unittest.TestCase):
@@ -40,6 +49,35 @@ class PipelineTest(unittest.TestCase):
             transcript = (temp / "site" / "episodes" / "2026-06-01.txt").read_text()
             self.assertIn("successful", transcript)
             self.assertIn("following", transcript)
+
+    def test_publish_emails_parent_questions_without_adding_them_to_feed(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            email_sender = RecordingEmailSender()
+            pipeline = DailyPipeline(
+                config=AppConfig.load(root / "data" / "config.json"),
+                data_dir=root / "data",
+                build_dir=temp / "build",
+                publisher=LocalPublisher(temp / "site"),
+                story_generator=MockStoryGenerator(),
+                tts=MockTTS(),
+                question_generator=MockQuestionGenerator(),
+                email_sender=email_sender,
+            )
+            pipeline.publish("2026-06-01")
+            self.assertEqual(len(email_sender.messages), 1)
+            subject, body = email_sender.messages[0]
+            self.assertIn("2026-06-01", subject)
+            self.assertIn("1. Why did Daniel visit the hospital?", body)
+            self.assertIn("2. How did the nurse help Daniel feel better?", body)
+            self.assertIn("3. What message did Daniel's uncle ask him", body)
+            self.assertTrue((temp / "build" / "2026-06-01-questions.txt").exists())
+            self.assertFalse(
+                (temp / "site" / "episodes" / "2026-06-01-questions.txt").exists()
+            )
+            feed = (temp / "site" / "feed.xml").read_text()
+            self.assertNotIn("Why did Daniel visit the hospital?", feed)
 
     def test_duplicate_date_is_regenerated_without_advancing_lesson(self):
         root = Path(__file__).resolve().parents[1]

@@ -52,6 +52,12 @@ class Story:
 
 
 @dataclass
+class DiscussionQuestion:
+    question: str
+    answer_hint: str
+
+
+@dataclass
 class ValidationResult:
     ok: bool
     word_count: int

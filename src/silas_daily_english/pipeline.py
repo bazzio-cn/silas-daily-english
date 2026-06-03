@@ -5,6 +5,7 @@ from typing import Optional
 
 from .config import AppConfig, load_json
 from .models import Episode, State
+from .questions import render_questions_email
 from .rss import write_feed
 from .themes import select_theme
 from .validate import validate_story
@@ -20,6 +21,8 @@ class DailyPipeline:
         publisher,
         story_generator,
         tts,
+        question_generator=None,
+        email_sender=None,
         theme_selector=select_theme,
     ):
         self.config = config
@@ -28,6 +31,8 @@ class DailyPipeline:
         self.publisher = publisher
         self.story_generator = story_generator
         self.tts = tts
+        self.question_generator = question_generator
+        self.email_sender = email_sender
         self.theme_selector = theme_selector
         self.vocabulary = VocabularyCatalog(data_dir)
 
@@ -95,6 +100,16 @@ class DailyPipeline:
         self.publisher.upload(audio_path, "episodes/{}.mp3".format(stem))
         self.publisher.upload(feed_path, "feed.xml")
         self.publisher.upload(state_path, "state.json")
+
+        if self.question_generator and self.email_sender:
+            questions = self.question_generator.generate(story)
+            questions_body = render_questions_email(story, questions)
+            questions_path = self.build_dir / "{}-questions.txt".format(stem)
+            questions_path.write_text(questions_body, encoding="utf-8")
+            self.email_sender.send(
+                "Silas' Daily English questions for {}".format(publication_date),
+                questions_body,
+            )
         return episode
 
     def _load_state(self) -> State:

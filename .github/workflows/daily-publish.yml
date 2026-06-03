@@ -41,6 +41,13 @@ jobs:
           AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
           TENCENT_SECRET_ID: ${{ secrets.TENCENT_SECRET_ID }}
           TENCENT_SECRET_KEY: ${{ secrets.TENCENT_SECRET_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_USE_SSL: ${{ vars.SMTP_USE_SSL }}
+          QUESTIONS_EMAIL_FROM: ${{ secrets.QUESTIONS_EMAIL_FROM }}
+          QUESTIONS_EMAIL_TO: ${{ secrets.QUESTIONS_EMAIL_TO }}
           COS_BUCKET: ${{ vars.COS_BUCKET }}
           COS_REGION: ${{ vars.COS_REGION }}
           COS_PREFIX: ${{ vars.COS_PREFIX }}
@@ -54,6 +61,8 @@ jobs:
             --publisher cos \
             --story-provider openai \
             --tts-provider azure \
+            --question-provider openai \
+            --question-email smtp \
             "${args[@]}"
 
       - name: Upload generated files for debugging
