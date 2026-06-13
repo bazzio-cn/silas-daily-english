@@ -50,6 +50,27 @@ class PipelineTest(unittest.TestCase):
             self.assertIn("successful", transcript)
             self.assertIn("following", transcript)
 
+    def test_feed_includes_subtitle_link_every_other_day(self):
+        root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            pipeline = DailyPipeline(
+                config=AppConfig.load(root / "data" / "config.json"),
+                data_dir=root / "data",
+                build_dir=temp / "build",
+                publisher=LocalPublisher(temp / "site"),
+                story_generator=MockStoryGenerator(),
+                tts=MockTTS(),
+            )
+            pipeline.publish("2026-06-01")
+            pipeline.publish("2026-06-02", lesson=39)
+            self.assertTrue((temp / "site" / "episodes" / "2026-06-02.srt").exists())
+            feed = (temp / "site" / "feed.xml").read_text()
+            self.assertIn("episodes/2026-06-01.srt", feed)
+            self.assertNotIn("episodes/2026-06-02.srt", feed)
+            self.assertIn("episodes/2026-06-01.txt", feed)
+            self.assertIn("episodes/2026-06-02.txt", feed)
+
     def test_publish_emails_parent_questions_without_adding_them_to_feed(self):
         root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as temp_dir:

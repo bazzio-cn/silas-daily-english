@@ -125,5 +125,5 @@ different explicit lesson override for an existing date is rejected.
 ## Private Apple Podcasts Limitation
 
 Apple Podcasts does not display its native transcript interface for a private RSS
-feed followed by URL. The RSS includes a Podcasting 2.0 SRT reference and a
-`Read the transcript` link to the plain-text file.
+feed followed by URL. The RSS includes a Podcasting 2.0 SRT reference every
+other day and a daily `Read the transcript` link to the plain-text file.

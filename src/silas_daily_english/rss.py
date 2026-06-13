@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from email.utils import format_datetime
 from html import escape
 from pathlib import Path
@@ -45,6 +45,12 @@ def _render_item(base_url: str, episode: Episode) -> str:
     publication = datetime.fromisoformat(episode.date).replace(
         hour=6, minute=17, tzinfo=ZoneInfo("Asia/Bangkok")
     )
+    transcript_link = ""
+    if _should_include_subtitle_link(episode.date):
+        transcript_link = (
+            '\n      <podcast:transcript url="{}.srt" '
+            'type="application/srt" language="en-gb" />'
+        ).format(escape(episode_url, quote=True))
     return """    <item>
       <title>{title}</title>
       <description><![CDATA[
@@ -55,8 +61,7 @@ def _render_item(base_url: str, episode: Episode) -> str:
       <guid isPermaLink="false">{guid}</guid>
       <enclosure url="{episode_url}.mp3" length="{audio_bytes}" type="audio/mpeg" />
       <itunes:duration>{duration}</itunes:duration>
-      <itunes:explicit>false</itunes:explicit>
-      <podcast:transcript url="{episode_url}.srt" type="application/srt" language="en-gb" />
+      <itunes:explicit>false</itunes:explicit>{transcript_link}
     </item>""".format(
         title=escape(episode.title),
         description=escape(episode.description),
@@ -65,7 +70,12 @@ def _render_item(base_url: str, episode: Episode) -> str:
         episode_url=escape(episode_url, quote=True),
         audio_bytes=episode.audio_bytes,
         duration=_duration(episode.duration_seconds),
+        transcript_link=transcript_link,
     )
+
+
+def _should_include_subtitle_link(publication_date: str) -> bool:
+    return date.fromisoformat(publication_date).toordinal() % 2 == 0
 
 
 def _duration(seconds: int) -> str:
