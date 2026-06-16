@@ -55,7 +55,6 @@ def _render_item(base_url: str, episode: Episode) -> str:
       <title>{title}</title>
       <description><![CDATA[
         <p>{description}</p>
-        <p><a href="{episode_url}.txt">Read the transcript</a></p>
       ]]></description>
       <pubDate>{publication}</pubDate>
       <guid isPermaLink="false">{guid}</guid>

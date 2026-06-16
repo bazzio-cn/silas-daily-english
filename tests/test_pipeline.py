@@ -44,7 +44,7 @@ class PipelineTest(unittest.TestCase):
             feed = (temp / "site" / "feed.xml").read_text()
             self.assertIn("episodes/2026-06-01.mp3", feed)
             self.assertIn("episodes/2026-06-01.srt", feed)
-            self.assertIn("episodes/2026-06-01.txt", feed)
+            self.assertNotIn("episodes/2026-06-01.txt", feed)
             self.assertNotIn("Daniel went to a small hospital", feed)
             transcript = (temp / "site" / "episodes" / "2026-06-01.txt").read_text()
             self.assertIn("successful", transcript)
@@ -68,8 +68,8 @@ class PipelineTest(unittest.TestCase):
             feed = (temp / "site" / "feed.xml").read_text()
             self.assertIn("episodes/2026-06-01.srt", feed)
             self.assertNotIn("episodes/2026-06-02.srt", feed)
-            self.assertIn("episodes/2026-06-01.txt", feed)
-            self.assertIn("episodes/2026-06-02.txt", feed)
+            self.assertNotIn("episodes/2026-06-01.txt", feed)
+            self.assertNotIn("episodes/2026-06-02.txt", feed)
 
     def test_publish_emails_parent_questions_without_adding_them_to_feed(self):
         root = Path(__file__).resolve().parents[1]

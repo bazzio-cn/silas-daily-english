@@ -126,4 +126,5 @@ different explicit lesson override for an existing date is rejected.
 
 Apple Podcasts does not display its native transcript interface for a private RSS
 feed followed by URL. The RSS includes a Podcasting 2.0 SRT reference every
-other day and a daily `Read the transcript` link to the plain-text file.
+other day. Plain-text transcript files are still generated and uploaded, but
+they are not linked from the podcast feed.
