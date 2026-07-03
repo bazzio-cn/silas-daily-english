@@ -1,6 +1,6 @@
 from html import escape
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
 
 from .config import require_env
 from .subtitles import Boundary, estimated_boundaries, format_srt
@@ -60,8 +60,7 @@ class AzureTTS:
         synthesizer.synthesis_word_boundary.connect(on_boundary)
         result = synthesizer.speak_ssml_async(self._ssml(narration)).get()
         if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
-            details = speechsdk.SpeechSynthesisCancellationDetails.from_result(result)
-            raise RuntimeError("Azure speech synthesis failed: {}".format(details.error_details))
+            raise RuntimeError(self._cancellation_message(result))
 
         duration_seconds = max(1, round(result.audio_duration.total_seconds()))
         if not boundaries:
@@ -75,3 +74,19 @@ class AzureTTS:
             "xml:lang=\"en-US\"><voice name=\"{}\"><prosody rate=\"{}%\">{}</prosody>"
             "</voice></speak>"
         ).format(self.voice, self.rate_percent, escape(narration))
+
+    def _cancellation_message(self, result) -> str:
+        details = getattr(result, "cancellation_details", None)
+        if details is None:
+            try:
+                details = self.speechsdk.SpeechSynthesisCancellationDetails(result)
+            except Exception:
+                details = None
+
+        reason = getattr(details, "reason", "unknown")
+        error_code = getattr(details, "error_code", "unknown")
+        error_details = getattr(details, "error_details", "") or "No details returned"
+        return (
+            "Azure speech synthesis failed for voice {}: "
+            "reason={}, error_code={}, details={}"
+        ).format(self.voice, reason, error_code, error_details)
