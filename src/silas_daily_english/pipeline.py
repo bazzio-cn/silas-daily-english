@@ -126,7 +126,7 @@ class DailyPipeline:
         return State.from_dict(payload)
 
     def _resolve_lesson(self, lesson: int) -> int:
-        return min(lesson, self.vocabulary.catalog_complete_through)
+        return self.vocabulary.resolve_lesson(lesson)
 
     def _generate_story(self, lesson: int, theme: dict):
         daily_focus_words = self.vocabulary.lesson_words(lesson)

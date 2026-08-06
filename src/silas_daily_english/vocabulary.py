@@ -22,23 +22,27 @@ class VocabularyCatalog:
         }
 
     def ensure_available(self, lesson: int) -> None:
-        if lesson > self.catalog_complete_through:
+        if lesson < 1:
             raise RuntimeError(
-                "Vocabulary catalog is complete through lesson {}, but lesson {} was requested."
-                .format(self.catalog_complete_through, lesson)
+                "Vocabulary catalog starts at lesson 1, but lesson {} was requested."
+                .format(lesson)
             )
 
-    def learned_words(self, lesson: int) -> Set[str]:
+    def resolve_lesson(self, lesson: int) -> int:
         self.ensure_available(lesson)
+        return min(lesson, self.catalog_complete_through)
+
+    def learned_words(self, lesson: int) -> Set[str]:
+        effective_lesson = self.resolve_lesson(lesson)
         words = set(self.base_words)
         for number, lesson_words in self.lessons.items():
-            if number <= lesson:
+            if number <= effective_lesson:
                 words.update(word.lower() for word in lesson_words)
         return words
 
     def lesson_words(self, lesson: int) -> List[str]:
-        self.ensure_available(lesson)
-        return self.lessons.get(lesson, [])
+        effective_lesson = self.resolve_lesson(lesson)
+        return self.lessons.get(effective_lesson, [])
 
 
 def extract_words(text: str) -> Iterable[str]:
