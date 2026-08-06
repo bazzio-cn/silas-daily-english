@@ -43,12 +43,17 @@ class DailyPipeline:
             (item for item in state.episodes if item.date == publication_date),
             None,
         )
-        if existing and lesson is not None and lesson != existing.lesson:
+        requested_lesson = None if lesson is None else self._resolve_lesson(lesson)
+        if existing and requested_lesson is not None and requested_lesson != existing.lesson:
             raise RuntimeError(
                 "Episode {} already uses lesson {}; refusing lesson {} overwrite."
-                .format(publication_date, existing.lesson, lesson)
+                .format(publication_date, existing.lesson, requested_lesson)
             )
-        target_lesson = existing.lesson if existing else lesson or state.current_lesson + 1
+        target_lesson = (
+            existing.lesson
+            if existing
+            else self._resolve_lesson(lesson or state.current_lesson + 1)
+        )
         self.vocabulary.ensure_available(target_lesson)
         if existing:
             state.episodes = [
@@ -81,7 +86,9 @@ class DailyPipeline:
             tts_voice=self.tts.voice,
             story_theme=theme["key"],
         )
-        state.current_lesson = max(state.current_lesson, target_lesson)
+        state.current_lesson = self._resolve_lesson(
+            max(state.current_lesson, target_lesson)
+        )
         state.last_published_date = publication_date
         state.episodes.insert(0, episode)
         state.episodes = state.episodes[: self.config.feed_item_limit]
@@ -117,6 +124,9 @@ class DailyPipeline:
         if payload is None:
             payload = load_json(self.data_dir / "state.default.json")
         return State.from_dict(payload)
+
+    def _resolve_lesson(self, lesson: int) -> int:
+        return min(lesson, self.vocabulary.catalog_complete_through)
 
     def _generate_story(self, lesson: int, theme: dict):
         daily_focus_words = self.vocabulary.lesson_words(lesson)

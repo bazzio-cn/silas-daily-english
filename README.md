@@ -32,8 +32,8 @@ are implemented.
 `data/lessons.json` contains the imported New Concept English 2 vocabulary catalog
 for Lessons 1-96. Each entry records the new vocabulary introduced by that lesson.
 Common primary-school English is allowed from the start; the textbook vocabulary
-is a daily focus list, not a strict whitelist. The program stops after Lesson 96
-until a new learning plan is configured.
+is a daily focus list, not a strict whitelist. After Lesson 96, the publisher
+continues creating daily episodes with the learning state capped at Lesson 96.
 
 Refresh the vocabulary catalog from the lesson pages:
 

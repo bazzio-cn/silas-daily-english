@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from silas_daily_english.config import AppConfig
+from silas_daily_english.models import Story
 from silas_daily_english.pipeline import DailyPipeline
 from silas_daily_english.questions import MockQuestionGenerator
 from silas_daily_english.storage import LocalPublisher
@@ -17,6 +18,22 @@ class RecordingEmailSender:
 
     def send(self, subject, body):
         self.messages.append((subject, body))
+
+
+class Lesson96StoryGenerator:
+    def generate(
+        self,
+        lesson,
+        daily_focus_words,
+        learned_words,
+        story_theme,
+        recurring_characters,
+        min_words,
+        max_words,
+        attempt,
+    ):
+        sentence = "The festival lantern made a bright spectacle for Leo and Mia."
+        return Story(title="The Bright Lantern", body=" ".join([sentence] * 20))
 
 
 class PipelineTest(unittest.TestCase):
@@ -145,7 +162,7 @@ class PipelineTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "refusing lesson 40 overwrite"):
                 pipeline.publish("2026-06-01", lesson=40)
 
-    def test_missing_next_lesson_stops_publish(self):
+    def test_publish_continues_at_final_lesson_after_catalog_is_complete(self):
         root = Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
@@ -160,11 +177,14 @@ class PipelineTest(unittest.TestCase):
                 data_dir=root / "data",
                 build_dir=temp / "build",
                 publisher=publisher,
-                story_generator=MockStoryGenerator(),
+                story_generator=Lesson96StoryGenerator(),
                 tts=MockTTS(),
             )
-            with self.assertRaisesRegex(RuntimeError, "complete through lesson 96"):
-                pipeline.publish("2026-07-29")
+            episode = pipeline.publish("2026-07-29")
+            self.assertEqual(episode.lesson, 96)
+            state = json.loads((temp / "site" / "state.json").read_text())
+            self.assertEqual(state["current_lesson"], 96)
+            self.assertEqual(state["episodes"][0]["lesson"], 96)
 
 
 if __name__ == "__main__":
